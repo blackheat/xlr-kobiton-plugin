@@ -24,7 +24,7 @@ def create_basic_authentication_token():
 
 
 def get_all_devices_list():
-    auth_token = create_basic_authentication_token(username, api_key)
+    auth_token = create_basic_authentication_token()
     url = kobiton_api_server
     headers = {
         "Content-Type": "application/json",
