@@ -18,7 +18,7 @@
     <property name="model" label="Device Name(s)" category="input" required="false" description="(Optional) Filter by devices' name, seperated by comma. Ex: iPhone,Galaxy "/>
     <property name="isAndroid" label="Android Devices" category="input" kind="boolean" required="false" description="Select Android devices"/>
     <property name="isiOs" label="iOS Devices" category="input" kind="boolean" required="false" description="Selcet iOS devices"/>    
-    <property name="devices" label="Devices List" category="output" kind="list_of_string" description="List of available devices (Device Name, Platform Name, Device UDID)."/>
+    <property name="devices" label="Devices List" category="output" kind="map_string_string" description="List of available devices (Device Name, Platform Name, Device UDID)."/>
   </type>
 
   <type type="kobiton.InstallApplication" extends="kobiton.Task">
@@ -33,9 +33,7 @@
 
   <type type="kobiton.ExecuteScript" extends="kobiton.Task">
     <!-- Devices -->
-    <property name="title" label="Devices" hidden="true" default="Devices"/>
-    <property name="kobiDevices" label="Kobiton Devices List" category="input" kind="list_of_string" required="false" description="List of avaiable Kobiton devices" />
-    <property name="privateDevices" label="In-House Devices List" category="input" kind="list_of_string" required="false" description="List of avaiable in-house devices"/>
+    <property name="kobiDevices" label="Kobiton Devices List" category="input" kind="map_string_string" required="false" description="List of avaiable Kobiton devices" />
     <property name="jobName" label="Job Name" category="input" required="true" description="Jenkins job name"/>
     
     <!-- DesiredCaps -->
@@ -65,6 +63,8 @@
 
   <!-- Global Configuration -->
   <type type="kobiton.Server" extends="configuration.HttpConnection">
+    <property name="privateDevices" label="In-House Devices List" category="input" kind="list_of_string" required="false" description="List of avaiable in-house devices"/>
+
     <property name="deviceOrientation" label="Orientation" category="input" kind="enum" required="false" default="Portrait">
       <enum-values>
         <value>Portrait</value>
