@@ -5,8 +5,8 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 
   <type type="kobiton.Task" extends="xlrelease.PythonScript" virtual="true">
-    <property name="iconLocation" default="kobiton/kobiton-logo.png" hidden="true" />
-    <property name="taskColor" hidden="true" default="#ffffff" />
+    <property name="iconLocation" default="kobiton/small-logo.png" hidden="true" />
+    <property name="taskColor" hidden="true" default="#2378ff" />
 
     <property name="kobitonServer" category="input" label="Server" referenced-type="kobiton.Server" kind="ci"/>
   </type>
@@ -15,27 +15,32 @@
     <property name="isFavorite" label="Favorite Devices" category="input" kind="boolean" required="false" description="Select only favorite devices"/>    
     <property name="isPrivate" label="In-house Devices" category="input" kind="boolean" required="false" description="Select only private devices"/>
     <property name="isCloud" label="Cloud Devices" category="input" kind="boolean" required="false" description="Select only cloud devices"/>
-    <property name="model" label="Device Name(s)" category="input" required="false" description="(Optional) The model of the device. For example: Galaxy S6, iPhone 6, ... . Regex supported."/>
-    <property name="isAndroid" label="(Platform) Android" category="input" kind="boolean" required="false" description="Select Android devices"/>
-    <property name="isiOs" label="(Platform) iOS" category="input" kind="boolean" required="false" description="Selcet iOS devices"/>    
-    <property name="devices" label="Devices List" category="output" kind="list_of_string" description="List of available devices (deviceId, model, available)."/>
+    <property name="model" label="Device Name(s)" category="input" required="false" description="(Optional) Filter by devices' name, seperated by comma. Ex: iPhone,Galaxy "/>
+    <property name="isAndroid" label="Android Devices" category="input" kind="boolean" required="false" description="Select Android devices"/>
+    <property name="isiOs" label="iOS Devices" category="input" kind="boolean" required="false" description="Selcet iOS devices"/>    
+    <property name="devices" label="Devices List" category="output" kind="list_of_string" description="List of available devices (Device Name, Platform Name, Device UDID)."/>
   </type>
 
   <type type="kobiton.InstallApplication" extends="kobiton.Task">
-    <property name="appUrl" category="input" required="true" description="Your app URL or path to your app file"/>
+    <property name="appPath" category="input" required="true" description="Path to your app file. Supported format: .apk, .ipa, .zip"/>
     <property name="appId" category="output" kind="list_of_string" description="Your app ID" />
   </type>
 
   <type type="kobiton.WaitForExecution" extends="kobiton.Task">
-    <property name="jobIds" label="Jod IDs" category="input" kind="list_of_string" required="true" description="Your app URL or path to your app file"/>
+    <property name="jobIds" label="Jod IDs" category="input" kind="list_of_string" required="true" description="A list of your job IDs"/>
+    <property name="testResult" label="Test result" category="output" kind="map_string_string" description="Result of your tests (Job ID, Session ID, Result)" />
   </type>
 
   <type type="kobiton.ExecuteScript" extends="kobiton.Task">
-    <property name="kobiDevices" label="Kobiton Devices List" category="input" kind="list_of_string" description="List of avaiable Kobiton devices" required="false"/>
-    <property name="privateDevices" label="In-House Devices List" category="input" kind="list_of_string" description="List of avaiable in-house devices" required="false"/>
-    <property name="jobName" label="Job Name" category="input" description="Jenkins job name" required="true"/>
-
-    <property name="deviceOrientation" label="Orientation" category="input" kind="enum" required="false">
+    <!-- Devices -->
+    <property name="title" label="Devices" hidden="true" default="Devices"/>
+    <property name="kobiDevices" label="Kobiton Devices List" category="input" kind="list_of_string" required="false" description="List of avaiable Kobiton devices" />
+    <property name="privateDevices" label="In-House Devices List" category="input" kind="list_of_string" required="false" description="List of avaiable in-house devices"/>
+    <property name="jobName" label="Job Name" category="input" required="true" description="Jenkins job name"/>
+    
+    <!-- DesiredCaps -->
+    <property name="overrideDesiredCaps" label="Override Desired Caps" category="input" kind="boolean" required="false" description="Check if you want to override the Desired Capabilities in Global Configuration"/>
+    <property name="deviceOrientation" label="Orientation" category="input" kind="enum" default="Portrait" required="false">
       <enum-values>
         <value>Portrait</value>
         <value>Landscape</value>
@@ -43,20 +48,24 @@
     </property>
     <property name="captureScreenshots" label="Capture Screenshots" category="input" kind="boolean" required="false"/>
 
-    <property name="testType" label="Test Type" category="input" kind="enum" required="true">
+    <property name="testType" label="App Type" default="App" category="input" kind="enum" required="true" description="Execute test on Applications or on Browsers">
       <enum-values>
         <value>App</value>
         <value>Browser</value>
       </enum-values>
     </property>
-    <property name="appUrl" label="App URL/App ID" category="input" description="Your app's public URL or Kobiton App ID" required="false"/>
-    <property name="browserVer" label="Browser Version" category="input" description="Your device's browser version" required="false"/>
+    <property name="appUrl" label="App URL/App ID" category="input" required="false" description="Your app's public URL or Kobiton App ID. Required if you chose to test on apps." />
+    <property name="browserVer" label="Browser Version" category="input" required="false" description="Your device's browser version. Required if you chose to test on browsers."/>
 
-    <property name="jobIds" category="output" kind="list_of_string" description="A list of your job IDs"/>
+    <property name="waitForExecution" label="Wait For Execution" category="input" required="false" kind="boolean" description="Wait for the tests to finish" />
+
+    <property name="jobIds" label="Job IDs" category="output" kind="map_string_string" description="A list of your Jenkins job IDs"/>
+    <property name="testResult" label="Test Result" category="output" kind="map_string_string" description="A list of your test results (Job ID, Session ID, Result)" />
   </type>
 
+  <!-- Global Configuration -->
   <type type="kobiton.Server" extends="configuration.HttpConnection">
-    <property name="deviceOrientation" label="Orientation" category="input" kind="enum" required="false">
+    <property name="deviceOrientation" label="Orientation" category="input" kind="enum" required="false" default="Portrait">
       <enum-values>
         <value>Portrait</value>
         <value>Landscape</value>
@@ -64,8 +73,8 @@
     </property>
     <property name="captureScreenshots" label="Capture Screenshots" category="input" kind="boolean" required="false"/>
 
-    <property name="serverDomain" label="User server domain" category="input" required="false" description="Domain for your server." />
-    <property name="jenkinsUsername" label="Jenkins Username" category="input" required="false" description="Jenkins username" />
-    <property name="jenkinsPassword" label="Jenkins Password" category="input" required="false" description="Jenkins password" />
+    <property name="serverDomain" label="User server domain" category="input" required="false" description="Your server domain for receiving requests." />
+    <property name="jenkinsUsername" label="Jenkins Username" category="input" required="false" description="Jenkins username." />
+    <property name="jenkinsPassword" label="Jenkins Password" category="input" required="false" description="Jenkins password." />
   </type>
 </synthetic>
