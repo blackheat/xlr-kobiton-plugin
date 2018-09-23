@@ -7,12 +7,24 @@ username = kobitonServer['username']
 api_key = kobitonServer['password']
 
 # Return list in XebiaLabs
-devices = []
+devices = {}
 
 
 def create_basic_authentication_token():
     s = username + ":" + api_key
     return "Basic " + s.encode("base64").rstrip()
+
+
+def get_devices_list():
+    devices_list = get_all_devices_list()
+
+    devices_list = merge_devices(devices_list, isCloud, isPrivate, isFavorite)
+    devices_list = device_available_filter(devices_list)
+    devices_list = device_platform_filter(isAndroid, isiOs, devices_list)
+    devices_list = device_name_filter(model, devices_list)
+    serialized_devices_list = serialize_devices(devices_list)
+
+    return serialized_devices_list
 
 
 def get_all_devices_list():
@@ -28,21 +40,9 @@ def get_all_devices_list():
     return json.loads(body)
 
 
-def get_devices_list():
-    devices_list = get_all_devices_list()
-
-    devices_list = merge_devices(devices_list, isCloud, isPrivate, isFavorite)
-    devices_list = device_available_filter(devices_list)
-    devices_list = device_platform_filter(isAndroid, isiOs, devices_list)
-    devices_list = device_name_filter(model, devices_list)
-    serialized_devices_list = serialize_devices(devices_list)
-
-    return serialized_devices_list
-
-
 def device_available_filter(devices_list=None):
     if devices_list is None:
-        devices_list = []
+        return []
 
     filtered_list = []
 
@@ -55,7 +55,7 @@ def device_available_filter(devices_list=None):
 
 def device_platform_filter(android, ios, devices_list=None):
     if devices_list is None:
-        devices_list = []
+        return []
 
     filtered_list = []
 
@@ -72,7 +72,7 @@ def device_platform_filter(android, ios, devices_list=None):
 
 def device_name_filter(filter_string=None, devices_list=None):
     if devices_list is None:
-        devices_list = []
+        return []
 
     filtered_list = []
 
@@ -83,7 +83,6 @@ def device_name_filter(filter_string=None, devices_list=None):
     for item in devices_list:
         for name in devices_name:
             if re.search(name, item['deviceName'], re.IGNORECASE):
-                print item['udid']
                 filtered_list.append(item)
                 break
 
@@ -111,7 +110,7 @@ def merge_devices(devices_list, cloud, private, favorite):
 
 def serialize_devices(devices_list=None):
     if devices_list is None:
-        devices_list = []
+        return {}
 
     serialized_list = {}
 
