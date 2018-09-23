@@ -26,7 +26,7 @@ def get_devices_list():
 
     return serialized_devices_list
 
-
+  
 def get_all_devices_list():
     auth_token = create_basic_authentication_token()
     url = kobiton_api_server + '/devices'
@@ -42,7 +42,7 @@ def get_all_devices_list():
 
 def device_available_filter(devices_list=None):
     if devices_list is None:
-        return []
+        devices_list = []
 
     filtered_list = []
 
