@@ -115,15 +115,11 @@ def serialize_devices(devices_list=None):
     serialized_list = {}
 
     for item in devices_list:
-        device_id = item['id']
-        device_data = {
-            'deviceName': str(item['deviceName']),
-            'platformName': str(item['platformName']),
-            'udid': str(item['udid'])
-        }
+        device_udid = str(item['udid'])
+        device_data = str().join([item['deviceName'], ' | ', item['platformName'], ' | ', item['platformVersion']])
 
         serialized_device = {
-            str(device_id): str(device_data)
+            device_udid: device_data
         }
 
         serialized_list.update(serialized_device)
