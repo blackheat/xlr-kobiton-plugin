@@ -1,10 +1,21 @@
 import json
 import re
 import urllib2
+import copy
 
-kobiton_api_server = kobitonServer['url']
-username = kobitonServer['username']
-api_key = kobitonServer['password']
+# kobiton_api_server = kobitonServer['url']
+# username = kobitonServer['username']
+# api_key = kobitonServer['password']
+
+kobiton_api_server = "https://api.kobiton.com/v1"
+username = "undefined"
+api_key = "a79fa165-6347-43a7-9cbb-10447a59f982"
+isCloud = False
+isPrivate = True
+isFavorite = True
+isAndroid = True
+isiOs = True
+model = ""
 
 # Return list in XebiaLabs
 devices = {}
@@ -42,7 +53,7 @@ def get_all_devices_list():
 
 def device_available_filter(devices_list=None):
     if devices_list is None:
-        devices_list = []
+        return None
 
     filtered_list = []
 
@@ -55,7 +66,7 @@ def device_available_filter(devices_list=None):
 
 def device_platform_filter(android, ios, devices_list=None):
     if devices_list is None:
-        return []
+        return None
 
     filtered_list = []
 
@@ -72,7 +83,7 @@ def device_platform_filter(android, ios, devices_list=None):
 
 def device_name_filter(filter_string=None, devices_list=None):
     if devices_list is None:
-        return []
+        return None
 
     filtered_list = []
 
@@ -91,35 +102,61 @@ def device_name_filter(filter_string=None, devices_list=None):
 
 def merge_devices(devices_list, cloud, private, favorite):
     classified_list = []
+    
+    cloud_attribute = {
+        "group": "Cloud"
+    }
+    private_attribute = {
+        "group": "In-House"
+    }
+    
+    if favorite:
+        for item in devices_list['favoriteDevices']:
+            if item in devices_list['cloudDevices']:
+                item.update(cloud_attribute)
+                classified_list.append(item)
+            elif item in devices_list['privateDevices']:
+                item.update(private_attribute)
+                classified_list.append(item)
+
 
     if cloud:
         for item in devices_list['cloudDevices']:
-            if item not in classified_list:
+            if find_device_by_id(item['id'], classified_list) is None:
+                item.update(cloud_attribute)
                 classified_list.append(item)
+
     if private:
         for item in devices_list['privateDevices']:
-            if item not in classified_list:
-                classified_list.append(item)
-    if favorite:
-        for item in devices_list['favoriteDevices']:
-            if item not in classified_list:
+            if find_device_by_id(item['id'], classified_list) is None:
+                item.update(private_attribute)
                 classified_list.append(item)
 
     return classified_list
 
 
+def find_device_by_id(device_id, devices_list=[]):
+    if devices_list is None:
+        return None
+   
+    for a in devices_list:
+        if a['id'] == device_id:
+            return a
+    
+    return None
+
+
 def serialize_devices(devices_list=None):
     if devices_list is None:
-        return {}
+        return None
 
     serialized_list = {}
 
     for item in devices_list:
-        device_udid = str(item['udid'])
-        device_data = str().join([item['deviceName'], ' | ', item['platformName'], ' | ', item['platformVersion']])
+        device_data = str().join([item['deviceName'], ' | ', item['platformName'], ' | ', item['platformVersion'], ' | ', item['group']])
 
         serialized_device = {
-            device_udid: device_data
+            item['udid']: device_data
         }
 
         serialized_list.update(serialized_device)
@@ -129,3 +166,5 @@ def serialize_devices(devices_list=None):
 
 devices = get_devices_list()
 
+for i in devices:
+    print i + ' : ' + devices[i]
