@@ -5,7 +5,7 @@ import copy
 
 kobiton_api_server = kobitonServer['url']
 username = kobitonServer['username']
-api_key = kobitonServer['password']
+api_key = kobitonServer['apiKey']
 
 # Return list in XebiaLabs
 devices = {}
