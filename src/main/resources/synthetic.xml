@@ -11,61 +11,6 @@
     <property name="kobitonServer" category="input" label="Server" referenced-type="kobiton.Server" kind="ci"/>
   </type>
 
-  <type type="kobiton.ListDevices" extends="kobiton.Task">
-    <property name="isFavorite" label="Favorite Devices" category="input" kind="boolean" required="false" description="Select only favorite devices"/>    
-    <property name="isPrivate" label="In-house Devices" category="input" kind="boolean" required="false" description="Select only private devices"/>
-    <property name="isCloud" label="Cloud Devices" category="input" kind="boolean" required="false" description="Select only cloud devices"/>
-    <property name="model" label="Device Name(s)" category="input" required="false" description="(Optional) The model of the device. For example: Galaxy S6, iPhone 6, ... . Regex supported."/>
-    <property name="isAndroid" label="(Platform) Android" category="input" kind="boolean" required="false" description="Select Android devices"/>
-    <property name="isiOs" label="(Platform) iOS" category="input" kind="boolean" required="false" description="Selcet iOS devices"/>    
-    <property name="devices" label="Devices List" category="output" kind="list_of_string" description="List of available devices (deviceId, model, available)."/>
-  </type>
+  <!-- Plugin interface code will append below -->
 
-  <type type="kobiton.InstallApplication" extends="kobiton.Task">
-    <property name="appUrl" category="input" required="true" description="Your app URL or path to your app file"/>
-    <property name="appId" category="output" kind="list_of_string" description="Your app ID" />
-  </type>
-
-  <type type="kobiton.WaitForExecution" extends="kobiton.Task">
-    <property name="jobIds" label="Jod IDs" category="input" kind="list_of_string" required="true" description="Your app URL or path to your app file"/>
-  </type>
-
-  <type type="kobiton.ExecuteScript" extends="kobiton.Task">
-    <property name="kobiDevices" label="Kobiton Devices List" category="input" kind="list_of_string" description="List of avaiable Kobiton devices" required="false"/>
-    <property name="privateDevices" label="In-House Devices List" category="input" kind="list_of_string" description="List of avaiable in-house devices" required="false"/>
-    <property name="jobName" label="Job Name" category="input" description="Jenkins job name" required="true"/>
-
-    <property name="deviceOrientation" label="Orientation" category="input" kind="enum" required="false">
-      <enum-values>
-        <value>Portrait</value>
-        <value>Landscape</value>
-      </enum-values>
-    </property>
-    <property name="captureScreenshots" label="Capture Screenshots" category="input" kind="boolean" required="false"/>
-
-    <property name="testType" label="Test Type" category="input" kind="enum" required="true">
-      <enum-values>
-        <value>App</value>
-        <value>Browser</value>
-      </enum-values>
-    </property>
-    <property name="appUrl" label="App URL/App ID" category="input" description="Your app's public URL or Kobiton App ID" required="false"/>
-    <property name="browserVer" label="Browser Version" category="input" description="Your device's browser version" required="false"/>
-
-    <property name="jobIds" category="output" kind="list_of_string" description="A list of your job IDs"/>
-  </type>
-
-  <type type="kobiton.Server" extends="configuration.HttpConnection">
-    <property name="deviceOrientation" label="Orientation" category="input" kind="enum" required="false">
-      <enum-values>
-        <value>Portrait</value>
-        <value>Landscape</value>
-      </enum-values>
-    </property>
-    <property name="captureScreenshots" label="Capture Screenshots" category="input" kind="boolean" required="false"/>
-
-    <property name="serverDomain" label="User server domain" category="input" required="false" description="Domain for your server." />
-    <property name="jenkinsUsername" label="Jenkins Username" category="input" required="false" description="Jenkins username" />
-    <property name="jenkinsPassword" label="Jenkins Password" category="input" required="false" description="Jenkins password" />
-  </type>
 </synthetic>
