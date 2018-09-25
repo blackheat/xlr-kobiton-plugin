@@ -1,8 +1,8 @@
 import sys
 
-params = { 'url': configuration.url, 'proxyHost': configuration.proxyHost, 'proxyPort': configuration.proxyPort }
+params = { 'url': configuration.url }
 
-request = HttpRequest(params, configuration.username, configuration.password)
+request = HttpRequest(params, configuration.username, configuration.apiKey)
 response = request.get('/devices')
 
 # check response status code, if is different than 200 exit with error code
