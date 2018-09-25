@@ -3,19 +3,19 @@ import re
 import urllib2
 import copy
 
-# kobiton_api_server = kobitonServer['url']
-# username = kobitonServer['username']
-# api_key = kobitonServer['password']
+kobiton_api_server = kobitonServer['url']
+username = kobitonServer['username']
+api_key = kobitonServer['password']
 
-kobiton_api_server = "https://api.kobiton.com/v1"
-username = "undefined"
-api_key = "a79fa165-6347-43a7-9cbb-10447a59f982"
-isCloud = False
-isPrivate = True
-isFavorite = True
-isAndroid = True
-isiOs = True
-model = ""
+# kobiton_api_server = "https://api.kobiton.com/v1"
+# username = "undefined"
+# api_key = "a79fa165-6347-43a7-9cbb-10447a59f982"
+# isCloud = False
+# isPrivate = True
+# isFavorite = True
+# isAndroid = True
+# isiOs = True
+# model = ""
 
 # Return list in XebiaLabs
 devices = {}
@@ -27,15 +27,22 @@ def create_basic_authentication_token():
 
 
 def get_devices_list():
-    devices_list = get_all_devices_list()
+    serialized_devices_list = {}
+    try:
+        devices_list = get_all_devices_list()
 
-    devices_list = merge_devices(devices_list, isCloud, isPrivate, isFavorite)
-    devices_list = device_available_filter(devices_list)
-    devices_list = device_platform_filter(isAndroid, isiOs, devices_list)
-    devices_list = device_name_filter(model, devices_list)
-    serialized_devices_list = serialize_devices(devices_list)
+        devices_list = merge_devices(devices_list, isCloud, isPrivate, isFavorite)
+        devices_list = device_available_filter(devices_list)
+        devices_list = device_platform_filter(isAndroid, isiOs, devices_list)
+        devices_list = device_name_filter(model, devices_list)
 
-    return serialized_devices_list
+        serialized_devices_list = serialize_devices(devices_list)
+    except Exception as e:
+        print 'Failed to get devices list'
+        print 'Log : ' + e
+        sys.exit(1)
+    finally:
+        return serialized_devices_list
 
   
 def get_all_devices_list():
@@ -103,35 +110,44 @@ def device_name_filter(filter_string=None, devices_list=None):
 def merge_devices(devices_list, cloud, private, favorite):
     classified_list = []
     
+    if favorite:
+        device_classification(devices_list['favoriteDevices'], classified_list, devices_list)
+
+    if cloud:
+        device_classification(devices_list['cloudDevices'], classified_list, devices_list)
+
+    if private:
+        device_classification(devices_list['privateDevices'], classified_list, devices_list)
+
+    return classified_list
+
+def device_classification(list_to_be_classified, classified_list=None, devices_list=None):
+    if classified_list is None:
+        classified_list=[]
+
+    if devices_list is None:
+        return []
+
+    # Defined attributes
     cloud_attribute = {
         "group": "Cloud"
     }
     private_attribute = {
         "group": "In-House"
     }
-    
-    if favorite:
-        for item in devices_list['favoriteDevices']:
-            if item in devices_list['cloudDevices']:
+    other_attribute = {
+        "group": "Other"
+    }
+
+    for item in list_to_be_classified:
+        if find_device_by_id(item['id'], classified_list) is None:
+            if find_device_by_id(item['id'], devices_list['cloudDevices']) is not None:
                 item.update(cloud_attribute)
-                classified_list.append(item)
-            elif item in devices_list['privateDevices']:
+            elif find_device_by_id(item['id'], devices_list['privateDevices']) is not None:
                 item.update(private_attribute)
-                classified_list.append(item)
-
-
-    if cloud:
-        for item in devices_list['cloudDevices']:
-            if find_device_by_id(item['id'], classified_list) is None:
-                item.update(cloud_attribute)
-                classified_list.append(item)
-
-    if private:
-        for item in devices_list['privateDevices']:
-            if find_device_by_id(item['id'], classified_list) is None:
-                item.update(private_attribute)
-                classified_list.append(item)
-
+            else:
+                item.update(other_attribute)
+            classified_list.append(item)
     return classified_list
 
 
@@ -148,7 +164,7 @@ def find_device_by_id(device_id, devices_list=[]):
 
 def serialize_devices(devices_list=None):
     if devices_list is None:
-        return None
+        return {}
 
     serialized_list = {}
 
@@ -166,5 +182,3 @@ def serialize_devices(devices_list=None):
 
 devices = get_devices_list()
 
-for i in devices:
-    print i + ' : ' + devices[i]
