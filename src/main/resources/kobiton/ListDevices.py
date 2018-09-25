@@ -7,16 +7,6 @@ kobiton_api_server = kobitonServer['url']
 username = kobitonServer['username']
 api_key = kobitonServer['password']
 
-# kobiton_api_server = "https://api.kobiton.com/v1"
-# username = "undefined"
-# api_key = "a79fa165-6347-43a7-9cbb-10447a59f982"
-# isCloud = False
-# isPrivate = True
-# isFavorite = True
-# isAndroid = True
-# isiOs = True
-# model = ""
-
 # Return list in XebiaLabs
 devices = {}
 
@@ -120,6 +110,7 @@ def merge_devices(devices_list, cloud, private, favorite):
         device_classification(devices_list['privateDevices'], classified_list, devices_list)
 
     return classified_list
+
 
 def device_classification(list_to_be_classified, classified_list=None, devices_list=None):
     if classified_list is None:
