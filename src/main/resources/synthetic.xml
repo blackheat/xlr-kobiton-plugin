@@ -5,8 +5,6 @@
 
   <!-- Global Configuration -->
   <type type="kobiton.Server" extends="xlrelease.Configuration">
-    <property name="title" label="Server Title" category="input" required="true" />
-
     <property name="username" label="Kobiton Username" category="input" required="true" description="Your Kobiton Username" />
     <property name="apiKey" label="Kobiton API Key" password="true" category="input" required="true" description="Your Kobiton API Key" />
     <property name="url" label="Kobiton API URL" category="input" required="true" default="https://api.kobiton.com" description="Kobiton URL used to consume API"/>
@@ -19,7 +17,7 @@
     </property>
     <property name="captureScreenshots" label="Default Capture Screenshots" category="input" kind="boolean" required="false" description="Default captureScreenshots value in your Desired Capabilites"/>
 
-    <property name="remoteServer" label="Remote server domain" category="input" required="true" description="Your server domain for receiving requests." />
+    <property name="remoteServer" label="Remote server domain" category="input" default="http://localhost:4545" required="true" description="Your server domain for receiving requests." />
   </type>
 
   <type type="kobiton.Task" extends="xlrelease.PythonScript" virtual="true">
