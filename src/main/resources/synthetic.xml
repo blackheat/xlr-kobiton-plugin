@@ -1,26 +1,84 @@
 <?xml version='1.0' encoding='UTF-8'?>
 
-<synthetic xsi:schemaLocation="http://www.xebialabs.com/deployit/synthetic synthetic.xsd" 
-  xmlns="http://www.xebialabs.com/deployit/synthetic" 
+<synthetic xsi:schemaLocation="http://www.xebialabs.com/deployit/synthetic synthetic.xsd" xmlns="http://www.xebialabs.com/deployit/synthetic"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 
   <type type="kobiton.Task" extends="xlrelease.PythonScript" virtual="true">
-    <property name="iconLocation" default="kobiton/kobiton-logo.png" hidden="true" />
-    <property name="taskColor" hidden="true" default="#ffffff" />
+    <property name="iconLocation" default="kobiton/small-logo.png" hidden="true" />
+    <property name="taskColor" hidden="true" default="#2378ff" />
 
-    <property name="kobitonServer" category="input" label="Server" referenced-type="kobiton.Server" kind="ci"/>
+    <property name="kobitonServer" category="input" label="Server" referenced-type="kobiton.Server" kind="ci" />
   </type>
 
   <!-- Plugin interface code will append below -->
   
   <type type="kobiton.ListDevices" extends="kobiton.Task">
-    <property name="isFavorite" label="Favorite Devices" category="input" kind="boolean" required="false" description="Select only favorite devices"/>    
-    <property name="isPrivate" label="In-house Devices" category="input" kind="boolean" required="false" description="Select only private devices"/>
-    <property name="isCloud" label="Cloud Devices" category="input" kind="boolean" required="false" description="Select only cloud devices"/>
-    <property name="model" label="Device Name(s)" category="input" required="false" description="(Optional) Filter by devices' name, seperated by comma. Ex: iPhone,Galaxy "/>
-    <property name="isAndroid" label="Android Devices" category="input" kind="boolean" required="false" description="Select Android devices"/>
-    <property name="isiOs" label="iOS Devices" category="input" kind="boolean" required="false" description="Selcet iOS devices"/>    
-    <property name="devices" label="Devices List" category="output" kind="map_string_string" description="List of available devices (Device Name, Platform Name, Device UDID)."/>
+    <property name="isFavorite" label="Favorite Devices" category="input" kind="boolean" required="false" description="Select only favorite devices" />
+    <property name="isPrivate" label="In-house Devices" category="input" kind="boolean" required="false" description="Select only private devices" />
+    <property name="isCloud" label="Cloud Devices" category="input" kind="boolean" required="false" description="Select only cloud devices" />
+    <property name="model" label="Device Name(s)" category="input" required="false" description="(Optional) Filter by devices' name, seperated by comma. Ex: iPhone,Galaxy " />
+    <property name="isAndroid" label="Android Devices" category="input" kind="boolean" required="false" description="Select Android devices" />
+    <property name="isiOs" label="iOS Devices" category="input" kind="boolean" required="false" description="Select iOS devices" />
+
+    <property name="devices" label="Devices List" category="output" kind="map_string_string" description="List of available devices (Device Name, Platform Name, Device UDID)." />
+  </type>
+
+  <type type="kobiton.InstallApplication" extends="kobiton.Task">
+    <property name="appPath" category="input" required="true" description="Path to your app file. Supported format: .apk, .ipa, .zip" />
+    <property name="appId" category="output" kind="list_of_string" description="Your app ID" />
+  </type>
+
+  <type type="kobiton.WaitForExecution" extends="kobiton.Task">
+    <property name="jobIds" label="Jod IDs" category="input" kind="list_of_string" required="true" description="A list of your job IDs" />
+  </type>
+
+  <type type="kobiton.ExecuteScript" extends="kobiton.Task">
+    <!-- Devices -->
+    <property name="kobiDevices" label="Kobiton Devices List" category="input" kind="map_string_string" required="false" description="List of avaiable Kobiton devices" />
+    <property name="privateDevices" label="In-House Devices List" category="input" kind="list_of_string" required="false" description="List of In-House devices UDIDs" />
+
+    <!-- DesiredCaps -->
+    <property name="overrideDesiredCaps" label="Override Desired Caps" category="input" kind="boolean" required="false" description="Check if you want to override the Desired Capabilities in Global Configuration" />
+    <property name="deviceOrientation" label="Orientation" category="input" kind="enum" default="Portrait" required="false" description="Value of deviceOrientation in your Desired Capabilites">
+      <enum-values>
+        <value>Portrait</value>
+        <value>Landscape</value>
+      </enum-values>
+    </property>
+    <property name="captureScreenshots" label="Capture Screenshots" category="input" kind="boolean" required="false" description="Value captureScreenshots in your Desired Capabilites"/>
+
+    <property name="testType" label="App Type" default="App" category="input" kind="enum" required="true" description="Execute test on Applications or on Browsers">
+      <enum-values>
+        <value>App</value>
+        <value>Browser</value>
+      </enum-values>
+    </property>
+    <property name="appUrl" label="App URL/App ID" category="input" required="false" description="Your app's public URL or Kobiton App ID. Required if you chose to test on apps." />
+    <property name="browser" label="Browser" category="input" required="false" description="Your device's browser. Required if you chose to test on browsers." />
+    <property name="browserVer" label="Browser Version" category="input" required="false" description="Your device's browser version. Required if you chose to test on browsers." />
+
+    <property name="gitUrl" label="Git Repository" category="input" required="true" description="URL to your Git repository that contains automation test scripts." />
+    <property name="ssh" label="Git Repository SSH Key" category="input" required="false" description="SSH to access your private Git repository." />
+    <property name="config" label="Configuration Commands" category="input" required="true" size="large" description="Bash commands to execute automation test." />
+  </type>
+
+  <!-- Global Configuration -->
+  <type type="kobiton.Server" extends="xlrelease.Configuration">
+    <property name="title" label="Server Title" category="input" required="true" />
+
+    <property name="username" label="Kobiton Username" category="input" required="true" description="Your Kobiton Username" />
+    <property name="apiKey" label="Kobiton API Key" password="true" category="input" required="true" description="Your Kobiton API Key" />
+    <property name="url" label="Kobiton API URL" category="input" required="true" default="https://api.kobiton.com/v1" description="Kobiton URL used to consume API"/>
+
+    <property name="deviceOrientation" label="Default Orientation" category="input" kind="enum" required="false" default="Portrait" description="Default deviceOrientation value in your Desired Capabilites">
+      <enum-values>
+        <value>Portrait</value>
+        <value>Landscape</value>
+      </enum-values>
+    </property>
+    <property name="captureScreenshots" label="Default Capture Screenshots" category="input" kind="boolean" required="false" description="Default captureScreenshots value in your Desired Capabilites"/>
+
+    <property name="serverDomain" label="Remote server domain" category="input" required="false" description="Your server domain for receiving requests." />
   </type>
 
 </synthetic>
