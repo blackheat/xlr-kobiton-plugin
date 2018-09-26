@@ -10,6 +10,8 @@
     <property name="kobitonServer" category="input" label="Server" referenced-type="kobiton.Server" kind="ci" />
   </type>
 
+  <!-- Plugin interface code will append below -->
+  
   <type type="kobiton.ListDevices" extends="kobiton.Task">
     <property name="isFavorite" label="Favorite Devices" category="input" kind="boolean" required="false" description="Select only favorite devices" />
     <property name="isPrivate" label="In-house Devices" category="input" kind="boolean" required="false" description="Select only private devices" />
