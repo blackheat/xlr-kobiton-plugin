@@ -1,10 +1,27 @@
 import sys
+import re
+import urllib2
+import base64
 
-params = { 'url': configuration.url }
+errorLog = []
+def ping(params={}, headers={}):
+    try:
+        request = urllib2.Request(params['url'], None, headers)
+        urllib2.urlopen(request)
+    except Exception as ex:
+        errorLog.append("Error while connecting to {}: {}".format(params['server'], ex))
 
-request = HttpRequest(params, configuration.username, configuration.apiKey)
-response = request.get('/devices')
+ping({
+    "url": re.sub(r'\/$|\\$','',configuration.url) + '/v1/devices',
+    "server": "Kobiton"
+}, {
+    "Authorization": 'Basic %s' % base64.b64encode('%s:%s' % (configuration.username, configuration.apiKey))
+})
 
-# check response status code, if is different than 200 exit with error code
-if response.getStatus() != 200:
-    sys.exit(1)
+ping({
+    "url": re.sub(r'\/$|\\$','',configuration.remoteServer) + '/ping',
+    "server": "Remote Server"
+})
+
+if errorLog != []:
+    sys.exit(errorLog)
