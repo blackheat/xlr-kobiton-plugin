@@ -1,20 +1,26 @@
 import sys
-
-request = HttpRequest({ 'url': configuration.url }, configuration.username, configuration.apiKey)
-response = request.get('/v1/devices')
-kobiStatus = response.getStatus()
-
-request = HttpRequest({'url': configuration.remoteServer})
-response = request.get('/ping')
-remoteStatus = response.getStatus()
+import urllib2
+import base64
 
 errorLog = []
-# Check response status code, if is different than 200 exit with error code
-if kobiStatus != 200:
-    errorLog.append('Invalid Kobiton credentials')
+def ping(params={}, headers={}):
+    try:
+        request = urllib2.Request(params['url'], None, headers)
+        urllib2.urlopen(request)
+    except Exception as ex:
+        errorLog.append("Error while connecting to {}: {}".format(params['server'], ex))
 
-if remoteStatus != 200:
-    errorLog.append('Cannot connect to remote server')
+ping({
+    "url": configuration.url + '/v1/devices',
+    "server": "Kobiton"
+}, {
+    "Authorization": 'Basic %s' % base64.b64encode('%s:%s' % (configuration.username, configuration.apiKey))
+})
+
+ping({
+    "url": configuration.remoteServer + '/ping',
+    "server": "Remote Server"
+})
 
 if errorLog != []:
     sys.exit(errorLog)
