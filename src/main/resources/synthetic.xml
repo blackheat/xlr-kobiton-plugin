@@ -78,24 +78,4 @@
     <property name="ssh" label="Git Repository SSH Key" category="input" required="false" description="SSH to access your private Git repository." />
     <property name="config" label="Configuration Commands" category="input" required="true" size="large" description="Bash commands to execute automation test." />
   </type>
-
-  <!-- Global Configuration -->
-  <type type="kobiton.Server" extends="xlrelease.Configuration">
-    <property name="title" label="Server Title" category="input" required="true" />
-
-    <property name="username" label="Kobiton Username" category="input" required="true" description="Your Kobiton Username" />
-    <property name="apiKey" label="Kobiton API Key" password="true" category="input" required="true" description="Your Kobiton API Key" />
-    <property name="url" label="Kobiton API URL" category="input" required="true" default="https://api.kobiton.com/v1" description="Kobiton URL used to consume API"/>
-
-    <property name="deviceOrientation" label="Default Orientation" category="input" kind="enum" required="false" default="Portrait" description="Default deviceOrientation value in your Desired Capabilites">
-      <enum-values>
-        <value>Portrait</value>
-        <value>Landscape</value>
-      </enum-values>
-    </property>
-    <property name="captureScreenshots" label="Default Capture Screenshots" category="input" kind="boolean" required="false" description="Default captureScreenshots value in your Desired Capabilites"/>
-
-    <property name="serverDomain" label="Remote server domain" category="input" required="false" description="Your server domain for receiving requests." />
-  </type>
-
 </synthetic>
