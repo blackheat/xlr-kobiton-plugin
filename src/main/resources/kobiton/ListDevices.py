@@ -3,6 +3,7 @@ import re
 import urllib2
 import copy
 
+# Since the global variable wizard has already checked status of the url, we don't need to perform url checking again.
 api_server = kobitonServer['url']
 username = kobitonServer['username']
 api_key = kobitonServer['apiKey']
@@ -18,13 +19,11 @@ platform_options = {
   'iOS': isiOs
 }
 
-
-# Return list in XebiaLabs
 devices = {}
 
 
 def get_devices_list():
-  filtered_list = None
+  filtered_list = {}
   try:
     devices_list = get_all_devices()
     filtered_list = devices_filter(group_options, devices_list)
@@ -94,18 +93,12 @@ def device_contains_name(device):
 
 
 def serialize_device(device):
-  device_data = str().join([device['deviceName'], ' | ', device['platformName'], ' | ', device['platformVersion'], ' | ', categorize_device(device)])
+  device_data = str().join([device['deviceName'], ' | ', device['platformName'], ' | ', device['platformVersion']])
   serialized_device = {
     device['udid']: str(device_data)
   }
 
   return serialized_device
-
-
-def categorize_device(device):
-  if device['isMyOrg']:
-    return "privateDevices"
-  return "cloudDevices"
 
 
 devices = get_devices_list()

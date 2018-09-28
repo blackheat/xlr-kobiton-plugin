@@ -1,51 +1,114 @@
+from org.apache.http.client.methods import HttpPut
+from org.apache.http.entity import ByteArrayEntity
+from org.apache.http.impl.client import HttpClients
 import json
-import base64
+import urllib2
+import ntpath
+
+api_server = kobitonServer['url']
+username = kobitonServer['username']
+api_key = kobitonServer['apiKey']
+
+options = {
+    'filename': ntpath.basename(appPath),
+    'app_id': appId,
+    'package_name': appPackageName
+}
 
 
-def getUrl():
-    param = {
-        'url': 'https://api.kobiton.com/v1/apps/uploadUrl'
+def loader():
+    if options['app_id'] is None or options['app_id'] == '':
+        if options['package_name'] is not None:
+            options['app_id'] = get_id_from_package_name(options['package_name'])
+
+    url_data = get_url()
+    option = {
+        'file_path': str(appPath),
+        'url': url_data['url']
     }
-    request = HttpRequest(param, 'undefined', 'a79fa165-6347-43a7-9cbb-10447a59f982')
+    upload_s3(option)
+    upload_kobiton(url_data['appPath'])
+
+
+def create_basic_authentication_token():
+    s = username + ":" + api_key
+    return "Basic " + s.encode("base64").rstrip()
+
+
+def get_id_from_package_name(package_name):
+    header = {
+        'content-type': 'application/json',
+        'authorization': create_basic_authentication_token()
+    }
+
+    request = urllib2.Request(url=api_server + '/v1/apps/', headers=header)
+
+    try:
+        response = urllib2.urlopen(request)
+        data = response.read()
+        applications = json.loads(data)
+
+        for application in applications['apps']:
+            for version in application['versions']:
+                native_properties = version['nativeProperties']
+                if native_properties['package'] == package_name:
+                    return str(application['id'])
+
+        raise Exception
+    except Exception:
+        return ''
+
+
+def get_url():
     content = {
-        'filename': 'appdemo.apk'
+        'filename': options['filename']
     }
 
-    response = request.post('', json.dumps(content), contentType='application/json')
-
-    return json.loads(response.getResponse())['url']
-
-
-def uploadS3(application_url):
-    param = {
-        'url': application_url
+    header = {
+        'content-type': 'application/json',
+        'authorization': create_basic_authentication_token()
     }
 
-    request = HttpRequest(param)
+    if options['app_id'] is not None and options['app_id'] != '':
+        content.update({'appId': options['app_id']})
 
-    file_input = open("/appdemo.apk", "rb")
+    request = urllib2.Request(url=api_server + '/v1/apps/uploadUrl', data=json.dumps(content), headers=header)
 
-    response = request.put("", base64.b64encode(file_input.read()), contentType='application/octet-stream')
-    print response.getResponse()
-    print response.getStatus()
-    print response.errorDump()
-# from org.apache.http.client.methods import HttpPut
-# from org.apache.http.entity import StringEntity, ByteArrayEntity
-# from org.apache.http.impl.client import HttpClients
-#
-#
-# def upload():
-#     binary = open("appdemo.apk", "rb")
-#     http_put = HttpPut("https://kobiton-us-east.s3.amazonaws.com/users/32809/apps/appdemo-b5a62a90-c223-11e8-bc74-b71de2b2cb30.apk?AWSAccessKeyId=AKIAJ7BONOZUJZMWR4WQ&Content-Type=application%2Foctet-stream&Expires=1538075126&Signature=CXfhbVS9YHDQO%2Bqk5PX4jH1yd5E%3D&x-amz-acl=private&x-amz-meta-appid=0&x-amz-meta-createdby=32809&x-amz-meta-organizationid=294&x-amz-meta-privateaccess=false&x-amz-tagging=unsaved%3Dtrue")
-#     http_put.setEntity(ByteArrayEntity(binary.read()))
-#     print "Executing request" + str(http_put.getRequestLine())
-#
-#     http_client = HttpClients.createDefault()
-#     response = http_client.execute(http_put)
-#     print response
-#
-# upload()
+    response = urllib2.urlopen(request)
+    data = response.read()
 
-app_url = getUrl()
-uploadS3(app_url)
+    return json.loads(data)
 
+
+def upload_s3(upload_options={}):
+    binary = open(upload_options['file_path'], "rb")
+    http_put = HttpPut(upload_options['url'])
+    http_put.setHeader('content-type', 'application/octet-stream')
+    http_put.setHeader('x-amz-tagging', 'unsaved=true')
+    http_put.setEntity(ByteArrayEntity(binary.read()))
+    http_client = HttpClients.createDefault()
+    response = http_client.execute(http_put)
+    print response.getStatusLine()
+    print response.getStatusLine().getStatusCode()
+
+
+def upload_kobiton(app_path):
+    content = {
+        'appPath': app_path,
+        'filename': options['filename']
+    }
+
+    header = {
+        'content-type': 'application/json',
+        'authorization': create_basic_authentication_token()
+    }
+
+    request = urllib2.Request(url=api_server + '/v1/apps', data=json.dumps(content), headers=header)
+
+    response = urllib2.urlopen(request)
+    data = response.read()
+
+    return json.loads(data)
+
+
+loader()
