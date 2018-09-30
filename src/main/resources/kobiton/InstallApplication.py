@@ -1,6 +1,8 @@
 from org.apache.http.client.methods import HttpPut
 from org.apache.http.entity import ByteArrayEntity
 from org.apache.http.impl.client import HttpClients
+from org.apache.http.impl.client import HttpClientBuilder
+from org.apache.http.client.methods import HttpGet
 import json
 import urllib2
 import ntpath
@@ -109,6 +111,19 @@ def upload_kobiton(app_path):
     data = response.read()
 
     return json.loads(data)
+
+def download_file(url):
+    client = HttpClientBuilder.create().build()
+    request = HttpGet(url)
+    response = client.execute(request)
+
+    entity = response.getEntity()
+
+    response_code = response.getStatusLine().getStatusCode()
+
+    input_stream = entity.getContent()
+
+    file = open('app_download.apk', 'wb')
 
 
 loader()
