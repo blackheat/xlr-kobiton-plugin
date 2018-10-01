@@ -42,8 +42,8 @@
 
   <type type="kobiton.InstallApplication" extends="kobiton.Task">
     <property name="appPath" category="input" required="true" description="Path to your app file. Supported format: .apk, .ipa, .zip" />
-    <property name="appId" category="input" required="false" description="Your app ID" />
-    <property name="appPackageName" category="input" required="false" description="Your app package name" />
+    <property name="appPackageName" category="input" required="false" description="Your application package name" />
+    <property name="kobitonAppId" category="output" kind="map_string_string" description="Kobiton application ID" />
   </type>
 
   <type type="kobiton.WaitForExecution" extends="kobiton.Task">

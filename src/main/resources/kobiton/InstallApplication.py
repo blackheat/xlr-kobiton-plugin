@@ -1,8 +1,6 @@
 from org.apache.http.client.methods import HttpPut
 from org.apache.http.entity import ByteArrayEntity
 from org.apache.http.impl.client import HttpClients
-from org.apache.http.impl.client import HttpClientBuilder
-from org.apache.http.client.methods import HttpGet
 import json
 import urllib2
 import ntpath
@@ -13,23 +11,32 @@ api_key = kobitonServer['apiKey']
 
 options = {
     'filename': ntpath.basename(appPath),
-    'app_id': appId,
-    'package_name': appPackageName
+    'app_id': '',
 }
+
+kobitonAppId = {}
 
 
 def loader():
-    if options['app_id'] is None or options['app_id'] == '':
-        if options['package_name'] is not None:
-            options['app_id'] = get_id_from_package_name(options['package_name'])
+    try:
+        options['app_id'] = get_id_from_package_name()
 
-    url_data = get_url()
-    option = {
-        'file_path': str(appPath),
-        'url': url_data['url']
-    }
-    upload_s3(option)
-    upload_kobiton(url_data['appPath'])
+        url_data = get_url()
+
+        option = {
+            'file_path': str(appPath),
+            'url': url_data['url']
+        }
+        upload_app_status = upload_s3(option)
+
+        if upload_app_status.getStatusCode() != 200:
+            raise Exception('S3 upload error' + str(upload_app_status))
+
+        kobiton_app_info = upload_kobiton(url_data['appPath'])
+
+        return {'appId': str().join(['kobiton-store', ':', str(kobiton_app_info['appId'])])}
+    except Exception as error:
+        print 'Unable to upload application. Error ' + str(error)
 
 
 def create_basic_authentication_token():
@@ -37,7 +44,10 @@ def create_basic_authentication_token():
     return "Basic " + s.encode("base64").rstrip()
 
 
-def get_id_from_package_name(package_name):
+def get_id_from_package_name():
+    if appPackageName is None or appPackageName == '' or appPackageName.isspace():
+        return ''
+
     header = {
         'content-type': 'application/json',
         'authorization': create_basic_authentication_token()
@@ -45,20 +55,15 @@ def get_id_from_package_name(package_name):
 
     request = urllib2.Request(url=api_server + '/v1/apps/', headers=header)
 
-    try:
-        response = urllib2.urlopen(request)
-        data = response.read()
-        applications = json.loads(data)
+    response = urllib2.urlopen(request)
+    data = response.read()
+    applications = json.loads(data)
 
-        for application in applications['apps']:
-            for version in application['versions']:
-                native_properties = version['nativeProperties']
-                if native_properties['package'] == package_name:
-                    return str(application['id'])
-
-        raise Exception
-    except Exception:
-        return ''
+    for application in applications['apps']:
+        for version in application['versions']:
+            native_properties = version['nativeProperties']
+            if native_properties['package'] == appPackageName:
+                return str(application['id'])
 
 
 def get_url():
@@ -71,7 +76,7 @@ def get_url():
         'authorization': create_basic_authentication_token()
     }
 
-    if options['app_id'] is not None and options['app_id'] != '':
+    if options['app_id'] != '':
         content.update({'appId': options['app_id']})
 
     request = urllib2.Request(url=api_server + '/v1/apps/uploadUrl', data=json.dumps(content), headers=header)
@@ -90,8 +95,7 @@ def upload_s3(upload_options={}):
     http_put.setEntity(ByteArrayEntity(binary.read()))
     http_client = HttpClients.createDefault()
     response = http_client.execute(http_put)
-    print response.getStatusLine()
-    print response.getStatusLine().getStatusCode()
+    return response.getStatusLine()
 
 
 def upload_kobiton(app_path):
@@ -112,18 +116,5 @@ def upload_kobiton(app_path):
 
     return json.loads(data)
 
-def download_file(url):
-    client = HttpClientBuilder.create().build()
-    request = HttpGet(url)
-    response = client.execute(request)
 
-    entity = response.getEntity()
-
-    response_code = response.getStatusLine().getStatusCode()
-
-    input_stream = entity.getContent()
-
-    file = open('app_download.apk', 'wb')
-
-
-loader()
+kobitonAppId = loader()
