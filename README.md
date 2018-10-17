@@ -1,15 +1,25 @@
-# The Kobiton plugin for XebiaLabs XL Release product
+# Kobiton plugin for XebiaLabs XL Release
 
-## Setup for development
-Assume the environment is Mac OS
-- Install Homebrew: `/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"`
-- Install Jython: `brew install jython`
-- Install [IntelliJ IDEA Community Edition](https://www.jetbrains.com/idea/download/#section=mac)
-- Install [JDK 1.7](http://www.oracle.com/technetwork/java/javase/downloads/java-archive-downloads-javase7-521261.html)
+<img src="./assets/logo.svg" width="200"/>
 
-## Build and deploy
-- Run command `gradle clean build` at the root directory
-- Copy the `jar` from `build/libs` into `plugins/__local__` directory in XL-Release server
-- ListDevices
-  - `model`: The device model (Galaxy S8, iPhone 8, ...)
-  - `devices`: (Output property) List of available devices
+# Overview
+This plugin is a XL Release plugin that adds capability for executing automation tests of mobile applications on Kobiton.
+
+# CI Status
+<!-- Code for CI Status will be placed here -->
+
+# Installation
+Place the plugin in into your `SERVER_HOME/plugins` directory or install using XL Release plugin manager.
+
+# Dependencies
+- XL Release 8.1.0+
+
+# Testing / Building
+## Prerequisites
+- Gradle 4.9+
+- JDK 1.7+
+- Jython 2.7+
+
+## Building and Testing
+- In root directory, run `gradle clean build`
+- Copy the output `jar` from `build/libs` to your `SERVER_HOME/plugins` folder or install using XL Release plugin manager.
